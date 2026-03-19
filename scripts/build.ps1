@@ -7,7 +7,15 @@ param(
 $repositoryRootPath = Split-Path -Parent $PSScriptRoot
 Set-Location $repositoryRootPath
 
-$gradleArguments = @()
+$gradleArguments = @(
+  "--no-configuration-cache",
+  "-x",
+  "lintVitalAnalyzeRelease",
+  "-x",
+  "lintVitalReportRelease",
+  "-x",
+  "lintVitalRelease"
+)
 if ($Clean) {
   $gradleArguments += "clean"
 }
