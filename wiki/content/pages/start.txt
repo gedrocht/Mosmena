@@ -1,0 +1,21 @@
+====== Mosmena Wiki ======
+
+Welcome to the Mosmena tutorial wiki.
+
+This wiki is designed for complete beginners. Read these pages before reading the source code if you want a slower, more narrative explanation.
+
+===== Recommended reading order =====
+
+  - [[getting_started|Getting Started]]
+  - [[acoustic_ranging_primer|Acoustic Ranging Primer]]
+  - [[development_workflow|Development Workflow]]
+
+===== What Mosmena is =====
+
+Mosmena is an Android project that demonstrates a simple pulse-echo ranging workflow:
+
+  - transmit a high-frequency chirp
+  - record the response
+  - find the direct coupling peak
+  - find the first later reflection peak
+  - estimate distance from the delay

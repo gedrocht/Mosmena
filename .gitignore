@@ -35,6 +35,12 @@ coverage/
 .gradle/
 target/
 out/
+*.iml
+local.properties
+captures/
+*/build/
+site/
+wiki/runtime/
 
 # Rust
 target/

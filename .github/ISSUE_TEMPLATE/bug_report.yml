@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a defect in the Android app, ranging logic, docs, or tooling.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect to happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: Reproduction steps
+      description: Provide a numbered list that another developer can follow.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Device and environment
+      description: Include Android version, device model, and any nearby acoustic conditions.
+    validations:
+      required: true
+  - type: textarea
+    id: additional_notes
+    attributes:
+      label: Additional notes
+      description: Paste logs, screenshots, or test output that might help.

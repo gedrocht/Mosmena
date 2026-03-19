@@ -1,0 +1,6 @@
+name: "Mosmena CodeQL configuration"
+paths-ignore:
+  - "wiki/runtime"
+  - "docs/api"
+queries:
+  - uses: security-and-quality

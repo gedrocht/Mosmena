@@ -1,0 +1,17 @@
+====== Development Workflow ======
+
+===== Before you change code =====
+
+  - Read the docs site in the `docs/` folder.
+  - Read the KDoc in the audio classes.
+  - Decide whether your change affects tests, docs, or both.
+
+===== Before you open a pull request =====
+
+Run:
+
+<code bash>
+./gradlew detekt ktlintCheck lintDebug testDebugUnitTest koverVerify
+</code>
+
+If you changed UI behavior, also run instrumented tests.

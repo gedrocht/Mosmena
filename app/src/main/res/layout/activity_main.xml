@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This layout intentionally uses a straightforward structure so a beginner can
+  follow the XML without needing to understand advanced Android view patterns.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:fillViewport="true"
+  tools:context=".ui.MainActivity">
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/applicationTitleTextView"
+      style="@style/TextAppearance.Material3.HeadlineMedium"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/application_name" />
+
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/applicationSubtitleTextView"
+      style="@style/TextAppearance.Material3.BodyLarge"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:text="@string/application_subtitle" />
+
+    <com.google.android.material.card.MaterialCardView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp">
+
+      <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <com.google.android.material.textview.MaterialTextView
+          android:id="@+id/cautionHeadlineTextView"
+          style="@style/TextAppearance.Material3.TitleMedium"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:text="@string/caution_headline" />
+
+        <com.google.android.material.textview.MaterialTextView
+          android:id="@+id/cautionBodyTextView"
+          style="@style/TextAppearance.Material3.BodyMedium"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_marginTop="8dp"
+          android:text="@string/caution_body" />
+      </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      android:gravity="center_vertical"
+      android:orientation="horizontal">
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/grantPermissionButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/grant_permission_button_label" />
+
+      <Space
+        android:layout_width="12dp"
+        android:layout_height="0dp" />
+
+      <com.google.android.material.button.MaterialButton
+        android:id="@+id/startMeasurementButton"
+        style="@style/Widget.Material3.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/start_measurement_button_label" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+      android:id="@+id/shareLogsButton"
+      style="@style/Widget.Material3.Button.OutlinedButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="12dp"
+      android:text="@string/share_logs_button_label" />
+
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/measurementStatusTextView"
+      style="@style/TextAppearance.Material3.TitleMedium"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="20dp"
+      tools:text="Ready to measure" />
+
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/measurementSummaryTextView"
+      style="@style/TextAppearance.Material3.BodyLarge"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      tools:text="No measurement has been recorded yet." />
+
+    <com.gedrocht.mosmena.ui.DistanceRadarView
+      android:id="@+id/distanceRadarView"
+      android:layout_width="match_parent"
+      android:layout_height="260dp"
+      android:layout_marginTop="20dp"
+      android:background="@android:color/transparent" />
+
+    <com.google.android.material.textview.MaterialTextView
+      android:id="@+id/logsHeadlineTextView"
+      style="@style/TextAppearance.Material3.TitleMedium"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="24dp"
+      android:text="@string/logs_headline" />
+
+    <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/applicationLogRecyclerView"
+      android:layout_width="match_parent"
+      android:layout_height="320dp"
+      android:layout_marginTop="12dp"
+      android:nestedScrollingEnabled="false"
+      app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+      tools:listitem="@layout/item_application_log_message" />
+  </LinearLayout>
+
+</ScrollView>

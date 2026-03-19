@@ -1,0 +1,41 @@
+build:
+  maxIssues: 0
+
+comments:
+  UndocumentedPublicClass:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**']
+  UndocumentedPublicFunction:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**']
+  UndocumentedPublicProperty:
+    active: true
+    excludes: ['**/test/**', '**/androidTest/**']
+
+complexity:
+  LongMethod:
+    threshold: 80
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 8
+  NestedBlockDepth:
+    threshold: 5
+  TooManyFunctions:
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+
+naming:
+  FunctionNaming:
+    functionPattern: '[a-z][A-Za-z0-9]*'
+  VariableNaming:
+    variablePattern: '[a-z][A-Za-z0-9]*'
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Z0-9_]*'
+
+style:
+  MagicNumber:
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreNamedArgument: true
+  ReturnCount:
+    max: 3

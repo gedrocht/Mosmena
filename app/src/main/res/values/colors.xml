@@ -1,0 +1,12 @@
+<resources>
+  <color name="mosmena_primary">#14532D</color>
+  <color name="mosmena_on_primary">#FFFFFF</color>
+  <color name="mosmena_primary_container">#D9F99D</color>
+  <color name="mosmena_secondary">#155E75</color>
+  <color name="mosmena_surface">#F8FAFC</color>
+  <color name="mosmena_surface_variant">#E2E8F0</color>
+  <color name="mosmena_on_surface">#0F172A</color>
+  <color name="mosmena_outline">#64748B</color>
+  <color name="mosmena_reflection">#F97316</color>
+  <color name="mosmena_direct_coupling">#2563EB</color>
+</resources>

@@ -1,0 +1,15 @@
+<resources>
+  <string name="application_name">Mosmena</string>
+  <string name="application_subtitle">An educational Android app that emits near-ultrasonic pulses, listens for reflections, and estimates the nearest reflecting surface.</string>
+  <string name="caution_headline">Important safety and hardware note</string>
+  <string name="caution_body">Many phones cannot reproduce strong energy above 20 kHz, and some people or animals may still notice high-frequency output. Use moderate volume, avoid testing near ears or pets, and treat this as an educational ranging demonstration rather than lab-grade instrumentation.</string>
+  <string name="grant_permission_button_label">Grant microphone access</string>
+  <string name="start_measurement_button_label">Measure nearest reflection</string>
+  <string name="share_logs_button_label">Share logs</string>
+  <string name="share_logs_chooser_title">Share logs</string>
+  <string name="share_logs_subject">Mosmena measurement logs</string>
+  <string name="logs_headline">Verbose application logs</string>
+  <string name="distance_view_no_measurement">No measurement yet</string>
+  <string name="distance_view_distance_label">%.2f m</string>
+  <string name="distance_view_confidence_label">Confidence: %.0f%%</string>
+</resources>

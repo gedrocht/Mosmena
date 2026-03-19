@@ -6,13 +6,25 @@ $requiredFiles = @(
   ".gitattributes",
   ".gitignore",
   "README.md",
+  "LICENSE",
   "SECURITY.md",
+  "CONTRIBUTING.md",
+  "mkdocs.yml",
   ".github/CODEOWNERS",
+  ".github/codeql/codeql-config.yml",
+  ".github/ISSUE_TEMPLATE/bug_report.yml",
+  ".github/ISSUE_TEMPLATE/feature_request.yml",
   ".github/pull_request_template.md",
   ".github/dependabot.yml",
   ".github/workflows/ci.yml",
+  ".github/workflows/pages.yml",
   ".github/workflows/security.yml",
-  ".github/workflows/review.yml"
+  ".github/workflows/review.yml",
+  "app/build.gradle.kts",
+  "app/src/main/AndroidManifest.xml",
+  "docs/index.md",
+  "wiki/docker-compose.yml",
+  "scripts/github/configure-repository.ps1"
 )
 
 $missing = @()

@@ -1,0 +1,14 @@
+services:
+  dokuwiki:
+    image: ghcr.io/linuxserver/dokuwiki:latest
+    container_name: mosmena-dokuwiki
+    ports:
+      - "8080:80"
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "America/New_York"
+    volumes:
+      - ./runtime/config:/config
+      - ./content/pages:/config/www/data/pages
+    restart: unless-stopped

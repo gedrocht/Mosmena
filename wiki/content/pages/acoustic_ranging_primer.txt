@@ -1,0 +1,19 @@
+====== Acoustic Ranging Primer ======
+
+===== The shortest explanation =====
+
+If sound takes longer to come back, the object is farther away.
+
+===== Why the code looks for two peaks =====
+
+The earliest strong peak is usually the phone hearing its own pulse directly.
+
+The next meaningful peak is treated as a reflection from the nearest object.
+
+===== Distance formula =====
+
+Distance equals:
+
+  time delay multiplied by the speed of sound, then divided by two.
+
+The divide-by-two step exists because the pulse travels out to the object and then back again.

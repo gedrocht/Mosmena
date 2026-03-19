@@ -7,7 +7,8 @@ Describe the change and the reason for it.
 - [ ] I added or updated tests for the change
 - [ ] I considered security, failure modes, and rollback impact
 - [ ] I updated documentation if behavior changed
-- [ ] I verified CI passes locally when practical
+- [ ] I verified `detekt`, `ktlintCheck`, `lintDebug`, `testDebugUnitTest`, and coverage when practical
+- [ ] I kept public KDoc and beginner docs accurate
 
 ## Risk Review
 

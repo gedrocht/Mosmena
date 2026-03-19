@@ -1,0 +1,18 @@
+====== Getting Started ======
+
+===== Goal =====
+
+The goal of Mosmena is not to build industrial sonar. The goal is to help a beginner understand how audio generation, recording, correlation, Android UI state, testing, and documentation all fit together in one repository.
+
+===== First things to understand =====
+
+  * Phone speakers are limited.
+  * Phone microphones are limited.
+  * Room acoustics are messy.
+  * A reflection estimate is always an interpretation of noisy data.
+
+===== First files to read =====
+
+  * `app/src/main/java/com/gedrocht/mosmena/audio/HighFrequencyPulseGenerator.kt`
+  * `app/src/main/java/com/gedrocht/mosmena/audio/CorrelationBasedNearestReflectionDistanceEstimator.kt`
+  * `app/src/main/java/com/gedrocht/mosmena/ui/MainScreenViewModel.kt`
