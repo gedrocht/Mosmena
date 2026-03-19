@@ -3,8 +3,19 @@
 [![CI](https://github.com/gedrocht/Mosmena/actions/workflows/ci.yml/badge.svg)](https://github.com/gedrocht/Mosmena/actions/workflows/ci.yml)
 [![Security](https://github.com/gedrocht/Mosmena/actions/workflows/security.yml/badge.svg)](https://github.com/gedrocht/Mosmena/actions/workflows/security.yml)
 [![Docs](https://github.com/gedrocht/Mosmena/actions/workflows/pages.yml/badge.svg)](https://github.com/gedrocht/Mosmena/actions/workflows/pages.yml)
+[![GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-0A7EA4)](https://gedrocht.github.io/Mosmena/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f.svg)](LICENSE)
 
-Mosmena is an Android demonstration project that emits a short near-ultrasonic pulse from the phone speaker, records the response through the microphone, estimates the nearest acoustic reflection, and visualizes the result.
+Mosmena is an Android acoustic ranging demo and learning project. It emits a short near-ultrasonic pulse from the phone speaker, records the response through the microphone, estimates the nearest reflection, and visualizes the result while keeping the code and docs beginner-friendly.
+
+GitHub description:
+Android acoustic ranging demo that emits near-ultrasonic pulses, estimates the nearest reflection, and teaches the codebase through beginner-first docs.
+
+Quick links:
+- Docs site: [gedrocht.github.io/Mosmena](https://gedrocht.github.io/Mosmena/)
+- Beginner quickstart: [docs/beginner-quickstart.md](docs/beginner-quickstart.md)
+- Script guide: [scripts/README.md](scripts/README.md)
+- Contribution guide: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Start Here If You Are New
 
@@ -21,6 +32,15 @@ If you are a complete beginner, use this exact path:
 9. Start the local wiki with `.\scripts\wiki.ps1 -Detached` or `./scripts/wiki.sh --detached`.
 
 If you just want a command list, run `.\scripts\help.ps1` or `./scripts/help.sh`.
+
+## At a glance
+
+- Platform: Android
+- Language: Kotlin
+- Main idea: pulse-echo acoustic distance estimation
+- Local entrypoints: beginner-friendly scripts under `scripts/`
+- Documentation: MkDocs site, Dokka API reference, and a local DokuWiki layer
+- Quality gates: lint, Detekt, ktlint, unit tests, instrumentation tests, coverage, and security scans
 
 ## Why this repository exists
 
@@ -150,6 +170,12 @@ The repository includes GitHub Actions for:
 ## GitHub repository metadata
 
 Use [scripts/github/configure-repository.ps1](scripts/github/configure-repository.ps1) if you want GitHub CLI to apply the repository description, homepage, and topics automatically after cloning.
+
+Recommended GitHub description:
+`Android acoustic ranging demo that emits near-ultrasonic pulses, estimates the nearest reflection, and teaches the codebase through beginner-first docs.`
+
+Recommended homepage:
+`https://gedrocht.github.io/Mosmena/`
 
 ## Learn more
 
