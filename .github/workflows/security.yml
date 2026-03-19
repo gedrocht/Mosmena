@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: "17 3 * * 1"
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
   security-events: write
@@ -27,20 +30,22 @@ jobs:
       actions: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
           cache: gradle
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: ""
 
       - name: Install Android SDK packages
         shell: bash
@@ -52,44 +57,56 @@ jobs:
         run: chmod +x gradlew
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: java-kotlin
           config-file: ./.github/codeql/codeql-config.yml
 
       - name: Build for CodeQL
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace --no-daemon
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
   codeql-actions:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: actions
           config-file: ./.github/codeql/codeql-config.yml
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
 
   secrets:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Run Gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          docker pull ghcr.io/gitleaks/gitleaks:v8.30.0
+          docker run --rm \
+            -v "${PWD}:/repo" \
+            ghcr.io/gitleaks/gitleaks:v8.30.0 \
+            git --source="/repo" --report-format sarif --report-path /repo/gitleaks.sarif --redact
+
+      - name: Upload Gitleaks report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: gitleaks-report
+          if-no-files-found: ignore
+          path: gitleaks.sarif
 
   scorecard:
     if: ${{ github.event_name != 'pull_request' }}
@@ -101,7 +118,7 @@ jobs:
       actions: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -113,6 +130,6 @@ jobs:
           publish_results: true
 
       - name: Upload Scorecard SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: scorecard-results.sarif

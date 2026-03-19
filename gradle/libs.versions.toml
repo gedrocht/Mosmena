@@ -47,6 +47,5 @@ junit4 = { module = "junit:junit", version.ref = "junit4" }
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 jetbrains-dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 jetbrains-kotlinx-kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kotlinx-kover" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
