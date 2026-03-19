@@ -2,8 +2,7 @@ param(
   [switch]$Clean
 )
 
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "common.ps1")
 
 $repositoryRootPath = Split-Path -Parent $PSScriptRoot
 Set-Location $repositoryRootPath
@@ -15,4 +14,4 @@ if ($Clean) {
 $gradleArguments += @("assembleDebug", "assembleRelease")
 
 Write-Host "Building Mosmena with Gradle tasks: $($gradleArguments -join ', ')"
-& "$repositoryRootPath\gradlew.bat" @gradleArguments
+Invoke-MosmenaGradle -RepositoryRootPath $repositoryRootPath -GradleArguments $gradleArguments

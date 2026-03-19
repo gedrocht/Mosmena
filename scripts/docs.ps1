@@ -2,8 +2,7 @@ param(
   [switch]$Serve
 )
 
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "common.ps1")
 
 $repositoryRootPath = Split-Path -Parent $PSScriptRoot
 $documentationVirtualEnvironmentPath = Join-Path $repositoryRootPath ".venv-docs"
@@ -29,10 +28,9 @@ Write-Host "Installing MkDocs dependencies into .venv-docs..."
 & $documentationVirtualEnvironmentPythonPath -m pip install mkdocs==1.6.1 mkdocs-material==9.5.34
 
 Write-Host "Generating API reference with Dokka..."
-& "$repositoryRootPath\gradlew.bat" ":app:dokkaGeneratePublicationHtml"
-if ($LASTEXITCODE -ne 0) {
-  throw "Dokka API documentation generation failed."
-}
+Invoke-MosmenaGradle `
+  -RepositoryRootPath $repositoryRootPath `
+  -GradleArguments @(":app:dokkaGeneratePublicationHtml")
 
 if ($Serve) {
   Write-Host "Serving documentation at http://127.0.0.1:8000"

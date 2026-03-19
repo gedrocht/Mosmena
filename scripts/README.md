@@ -6,6 +6,7 @@ This folder exists to make common project tasks obvious for beginners.
 
 - `doctor`: checks whether your machine has the tools needed to build and run the project
 - `setup`: helps you prepare local configuration such as `local.properties`
+- the PowerShell Gradle-based scripts also repair `local.properties` automatically when the Android SDK is already installed
 - `build`: builds the Android application
 - `run-android`: installs and launches the Android app on a connected device or emulator
 - `test`: runs unit tests and coverage verification

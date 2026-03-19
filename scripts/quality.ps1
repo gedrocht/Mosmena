@@ -1,15 +1,18 @@
 param(
+  [switch]$Clean,
   [switch]$IncludeInstrumentationTests
 )
 
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "common.ps1")
 
 $repositoryRootPath = Split-Path -Parent $PSScriptRoot
 Set-Location $repositoryRootPath
 
-$gradleArguments = @(
-  "clean",
+$gradleArguments = @()
+if ($Clean) {
+  $gradleArguments += "clean"
+}
+$gradleArguments += @(
   "detekt",
   "ktlintCheck",
   "lintDebug",
@@ -23,4 +26,4 @@ if ($IncludeInstrumentationTests) {
 }
 
 Write-Host "Running Mosmena quality suite with Gradle tasks: $($gradleArguments -join ', ')"
-& "$repositoryRootPath\gradlew.bat" @gradleArguments
+Invoke-MosmenaGradle -RepositoryRootPath $repositoryRootPath -GradleArguments $gradleArguments
