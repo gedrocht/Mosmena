@@ -63,19 +63,19 @@ Write-Host "Mosmena prerequisite check"
 Write-Host "==========================="
 Write-Host ""
 
-Write-CheckResult -Label "Java 17 or newer" -Passed ($null -ne $javaCommandPath) -Details (
+Write-CheckResult -Label "Java 17 or newer" -Passed ($null -ne $javaCommandPath) -Details $(
   if ($null -ne $javaCommandPath) { $javaCommandPath } else { "Install Android Studio or a JDK 17 distribution." }
 )
-Write-CheckResult -Label "Android SDK" -Passed ($null -ne $androidSdkPath) -Details (
+Write-CheckResult -Label "Android SDK" -Passed ($null -ne $androidSdkPath) -Details $(
   if ($null -ne $androidSdkPath) { $androidSdkPath } else { "Install Android Studio, then install Android SDK platform 36 and build-tools 36.0.0." }
 )
-Write-CheckResult -Label "adb" -Passed ($null -ne $adbCommandPath) -Details (
+Write-CheckResult -Label "adb" -Passed ($null -ne $adbCommandPath) -Details $(
   if ($null -ne $adbCommandPath) { $adbCommandPath } else { "Install Android platform-tools or let Android Studio install them." }
 )
-Write-CheckResult -Label "Python" -Passed ($null -ne $pythonCommandPath) -Details (
+Write-CheckResult -Label "Python" -Passed ($null -ne $pythonCommandPath) -Details $(
   if ($null -ne $pythonCommandPath) { $pythonCommandPath } else { "Install Python 3 if you want to build or serve the docs site." }
 )
-Write-CheckResult -Label "Docker" -Passed ($null -ne $dockerCommandPath) -Details (
+Write-CheckResult -Label "Docker" -Passed ($null -ne $dockerCommandPath) -Details $(
   if ($null -ne $dockerCommandPath) { $dockerCommandPath } else { "Install Docker Desktop if you want to run the local DokuWiki." }
 )
 

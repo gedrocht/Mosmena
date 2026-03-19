@@ -60,10 +60,14 @@ class CorrelationBasedNearestReflectionDistanceEstimator {
       )
     )
 
-    val detectedPeaks = detectPeakSampleIndices(
+    val detectedPeaks = collapseNearbyPeaks(
+      peakSampleIndices = detectPeakSampleIndices(
+        correlationValues = correlationValues,
+        minimumPeakHeight = minimumPeakHeight
+      ).filter { peakSampleIndex -> peakSampleIndex >= searchStartSampleIndex },
       correlationValues = correlationValues,
-      minimumPeakHeight = minimumPeakHeight
-    ).filter { peakSampleIndex -> peakSampleIndex >= searchStartSampleIndex }
+      maximumGapInSamples = calculatePeakGroupingGapInSamples(acousticPulseConfiguration)
+    )
 
     val directCouplingPeakSampleIndex = checkNotNull(detectedPeaks.firstOrNull()) {
       "The algorithm could not find the direct speaker-to-microphone coupling peak."
@@ -184,6 +188,62 @@ class CorrelationBasedNearestReflectionDistanceEstimator {
     return peakSampleIndices
   }
 
+  private fun collapseNearbyPeaks(
+    peakSampleIndices: List<Int>,
+    correlationValues: DoubleArray,
+    maximumGapInSamples: Int
+  ): List<Int> {
+    if (peakSampleIndices.isEmpty()) {
+      return emptyList()
+    }
+
+    val collapsedPeakSampleIndices = mutableListOf<Int>()
+    var currentPeakCluster = mutableListOf(peakSampleIndices.first())
+
+    for (peakSampleIndex in peakSampleIndices.drop(1)) {
+      val previousPeakSampleIndex = currentPeakCluster.last()
+      if (peakSampleIndex - previousPeakSampleIndex <= maximumGapInSamples) {
+        currentPeakCluster += peakSampleIndex
+        continue
+      }
+
+      collapsedPeakSampleIndices += selectStrongestPeakSampleIndex(
+        peakSampleIndices = currentPeakCluster,
+        correlationValues = correlationValues
+      )
+      currentPeakCluster = mutableListOf(peakSampleIndex)
+    }
+
+    collapsedPeakSampleIndices += selectStrongestPeakSampleIndex(
+      peakSampleIndices = currentPeakCluster,
+      correlationValues = correlationValues
+    )
+    return collapsedPeakSampleIndices
+  }
+
+  private fun selectStrongestPeakSampleIndex(
+    peakSampleIndices: List<Int>,
+    correlationValues: DoubleArray
+  ): Int {
+    return peakSampleIndices.maxBy { peakSampleIndex ->
+      correlationValues[peakSampleIndex].absoluteValue
+    }
+  }
+
+  private fun calculatePeakGroupingGapInSamples(
+    acousticPulseConfiguration: AcousticPulseConfiguration
+  ): Int {
+    val pulseBandwidthInHertz = (
+      acousticPulseConfiguration.pulseEndFrequencyInHertz -
+        acousticPulseConfiguration.pulseStartFrequencyInHertz
+      ).absoluteValue.coerceAtLeast(MINIMUM_PULSE_BANDWIDTH_IN_HERTZ)
+
+    return max(
+      MINIMUM_PEAK_GROUPING_GAP_IN_SAMPLES,
+      (acousticPulseConfiguration.sampleRateInHertz / pulseBandwidthInHertz).toInt()
+    )
+  }
+
   private companion object {
     private const val MAXIMUM_MEASUREMENT_CONFIDENCE = 1.0
     private const val MILLISECONDS_PER_SECOND = 1_000.0
@@ -191,6 +251,8 @@ class CorrelationBasedNearestReflectionDistanceEstimator {
     private const val MINIMUM_DELAY_SAMPLE_COUNT = 1
     private const val MINIMUM_NORMALIZATION_ENERGY = 0.0000001
     private const val MINIMUM_PEAK_HEIGHT_RATIO = 0.45
+    private const val MINIMUM_PEAK_GROUPING_GAP_IN_SAMPLES = 1
+    private const val MINIMUM_PULSE_BANDWIDTH_IN_HERTZ = 1.0
     private const val ROUND_TRIP_DISTANCE_MULTIPLIER = 2.0
   }
 }
