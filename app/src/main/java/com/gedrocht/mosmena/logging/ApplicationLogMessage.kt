@@ -19,8 +19,15 @@ data class ApplicationLogMessage(
  * Log levels used by the in-memory logger and the on-screen viewer.
  */
 enum class ApplicationLogSeverity {
+  /** Most detailed logging level, intended for step-by-step diagnostics. */
   VERBOSE,
+
+  /** Normal informational messages that describe healthy application progress. */
   INFORMATION,
+
+  /** Messages that describe unusual but still recoverable situations. */
   WARNING,
+
+  /** Messages that describe a failure or unrecoverable situation. */
   ERROR
 }

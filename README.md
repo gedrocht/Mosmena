@@ -74,7 +74,7 @@ Treat the app as an educational ranging experiment, not a safety-critical measur
 ./gradlew testDebugUnitTest
 ./gradlew connectedDebugAndroidTest
 ./gradlew koverXmlReport koverVerify
-./gradlew dokkaHtml
+./gradlew :app:dokkaGeneratePublicationHtml
 ```
 
 ### Local helper scripts

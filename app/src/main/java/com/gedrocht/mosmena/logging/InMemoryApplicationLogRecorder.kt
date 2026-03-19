@@ -90,10 +90,10 @@ class InMemoryApplicationLogRecorder : ApplicationLogRecorder {
 
     mutableRecentLogMessages.value = (
       mutableRecentLogMessages.value + newLogMessage
-      ).takeLast(MAXIMUM_RETAINED_LOG_MESSAGE_COUNT)
+    ).takeLast(MAXIMUM_RETAINED_LOG_MESSAGE_COUNT)
   }
 
-  companion object {
+  private companion object {
     private const val MAXIMUM_RETAINED_LOG_MESSAGE_COUNT = 250
   }
 }

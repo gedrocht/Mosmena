@@ -33,7 +33,7 @@ android {
       isShrinkResources = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
+        "proguard-rules.pro",
       )
     }
   }
@@ -106,7 +106,7 @@ kover {
             "com.gedrocht.mosmena.MosmenaApplication",
             "com.gedrocht.mosmena.application.*",
             "com.gedrocht.mosmena.audio.AndroidAudioPulseEchoDistanceMeasuringService",
-            "com.gedrocht.mosmena.ui.*"
+            "com.gedrocht.mosmena.ui.*",
           )
         }
       }

@@ -30,46 +30,99 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
   override suspend fun measureNearestReflectionDistance(
     acousticPulseConfiguration: AcousticPulseConfiguration
   ): DistanceMeasurement = withContext(inputOutputCoroutineDispatcher) {
-    val effectiveAcousticPulseConfiguration = acousticPulseConfiguration
     val generatedPulseSignal = highFrequencyPulseGenerator.generatePulseSignal(
-      acousticPulseConfiguration = effectiveAcousticPulseConfiguration
+      acousticPulseConfiguration = acousticPulseConfiguration
     )
+    logMeasurementStart(acousticPulseConfiguration)
 
-    applicationLogRecorder.recordInformationMessage(
-      tag = TAG,
-      message =
-        "Starting measurement with ${effectiveAcousticPulseConfiguration.sampleRateInHertz} Hz " +
-          "sampling and a ${effectiveAcousticPulseConfiguration.pulseDurationInMilliseconds} ms pulse."
-    )
-
-    val recordingSampleCount = (
-      effectiveAcousticPulseConfiguration.sampleRateInHertz *
-        effectiveAcousticPulseConfiguration.totalRecordingDurationInMilliseconds / 1_000.0
-      ).roundToInt()
-
+    val recordingSampleCount = determineRecordingSampleCount(acousticPulseConfiguration)
     val recordingBufferSizeInBytes = determineRecordingBufferSizeInBytes(
-      acousticPulseConfiguration = effectiveAcousticPulseConfiguration,
+      acousticPulseConfiguration = acousticPulseConfiguration,
       recordingSampleCount = recordingSampleCount
     )
-
     val audioRecord = createAudioRecord(
-      acousticPulseConfiguration = effectiveAcousticPulseConfiguration,
+      acousticPulseConfiguration = acousticPulseConfiguration,
       recordingBufferSizeInBytes = recordingBufferSizeInBytes
     )
-
     val audioTrack = createAudioTrack(
-      acousticPulseConfiguration = effectiveAcousticPulseConfiguration,
+      acousticPulseConfiguration = acousticPulseConfiguration,
       generatedPulseSignal = generatedPulseSignal
     )
-
-    val recordedPulseCodeModulationSamples = ShortArray(recordingSampleCount)
     val measurementStartTimeInNanoseconds = SystemClock.elapsedRealtimeNanos()
 
     try {
+      val recordedPulseCodeModulationSamples = captureRecordedPulseCodeModulationSamples(
+        audioRecord = audioRecord,
+        audioTrack = audioTrack,
+        recordingSampleCount = recordingSampleCount,
+        acousticPulseConfiguration = acousticPulseConfiguration
+      )
+      val distanceMeasurement = nearestReflectionDistanceEstimator.estimateNearestReflectionDistance(
+        emittedPulseSamples = generatedPulseSignal.floatingPointSamples,
+        recordedSamples = convertRecordedSamplesToFloatingPoint(recordedPulseCodeModulationSamples),
+        acousticPulseConfiguration = acousticPulseConfiguration
+      )
+      logMeasurementSuccess(
+        measurementStartTimeInNanoseconds = measurementStartTimeInNanoseconds,
+        distanceMeasurement = distanceMeasurement
+      )
+      distanceMeasurement
+    } catch (exception: IllegalStateException) {
+      logAndRethrowMeasurementFailure(exception)
+    } catch (exception: SecurityException) {
+      logAndRethrowMeasurementFailure(exception)
+    } finally {
+      audioTrack.release()
+      audioRecord.release()
+    }
+  }
+
+  /**
+   * Converts the configured recording duration into a sample count.
+   */
+  private fun determineRecordingSampleCount(
+    acousticPulseConfiguration: AcousticPulseConfiguration
+  ): Int {
+    return (
+      acousticPulseConfiguration.sampleRateInHertz *
+        acousticPulseConfiguration.totalRecordingDurationInMilliseconds / MILLISECONDS_PER_SECOND
+      ).roundToInt()
+  }
+
+  /**
+   * Writes a clear starting log entry so beginners can see what the service is
+   * about to do.
+   */
+  private fun logMeasurementStart(acousticPulseConfiguration: AcousticPulseConfiguration) {
+    applicationLogRecorder.recordInformationMessage(
+      tag = TAG,
+      message =
+        "Starting measurement with ${acousticPulseConfiguration.sampleRateInHertz} Hz " +
+          "sampling and a ${acousticPulseConfiguration.pulseDurationInMilliseconds} ms pulse."
+    )
+  }
+
+  /**
+   * Captures the microphone recording that contains both the direct coupling and
+   * the reflected pulse.
+   */
+  private suspend fun captureRecordedPulseCodeModulationSamples(
+    audioRecord: AudioRecord,
+    audioTrack: AudioTrack,
+    recordingSampleCount: Int,
+    acousticPulseConfiguration: AcousticPulseConfiguration
+  ): ShortArray {
+    val recordedPulseCodeModulationSamples = ShortArray(recordingSampleCount)
+    var hasStartedRecording = false
+    var hasStartedPlayback = false
+
+    try {
       audioRecord.startRecording()
-      delay(effectiveAcousticPulseConfiguration.prePlaybackCaptureDurationInMilliseconds.toLong())
+      hasStartedRecording = true
+      delay(acousticPulseConfiguration.prePlaybackCaptureDurationInMilliseconds.toLong())
 
       audioTrack.play()
+      hasStartedPlayback = true
 
       var totalRecordedSampleCount = 0
       while (totalRecordedSampleCount < recordingSampleCount) {
@@ -80,54 +133,70 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
           AudioRecord.READ_BLOCKING
         )
 
-        if (numberOfSamplesRead <= 0) {
-          throw IllegalStateException(
-            "AudioRecord returned an invalid sample count: $numberOfSamplesRead"
-          )
+        check(numberOfSamplesRead > 0) {
+          "AudioRecord returned an invalid sample count: $numberOfSamplesRead"
         }
 
         totalRecordedSampleCount += numberOfSamplesRead
       }
 
-      audioTrack.stop()
-      audioRecord.stop()
-
-      val recordedFloatingPointSamples = recordedPulseCodeModulationSamples.map { sampleValue ->
-        sampleValue / Short.MAX_VALUE.toFloat()
-      }.toFloatArray()
-
-      val distanceMeasurement = nearestReflectionDistanceEstimator.estimateNearestReflectionDistance(
-        emittedPulseSamples = generatedPulseSignal.floatingPointSamples,
-        recordedSamples = recordedFloatingPointSamples,
-        acousticPulseConfiguration = effectiveAcousticPulseConfiguration
-      )
-
-      val measurementDurationInMilliseconds =
-        (SystemClock.elapsedRealtimeNanos() - measurementStartTimeInNanoseconds) / 1_000_000.0
-
-      applicationLogRecorder.recordInformationMessage(
-        tag = TAG,
-        message =
-          "Measurement completed in %.2f ms with distance %.2f m and confidence %.2f.".format(
-            Locale.US,
-            measurementDurationInMilliseconds,
-            distanceMeasurement.measuredDistanceInMeters,
-            distanceMeasurement.measurementConfidence
-          )
-      )
-
-      distanceMeasurement
-    } catch (exception: Exception) {
-      applicationLogRecorder.recordErrorMessage(
-        tag = TAG,
-        message = "Measurement failed because the audio pipeline or estimator rejected the result.",
-        throwable = exception
-      )
-      throw exception
+      return recordedPulseCodeModulationSamples
     } finally {
-      audioTrack.release()
-      audioRecord.release()
+      if (hasStartedPlayback) {
+        audioTrack.stop()
+      }
+      if (hasStartedRecording) {
+        audioRecord.stop()
+      }
     }
+  }
+
+  /**
+   * Converts sixteen-bit audio samples into normalized floating-point samples so
+   * the correlation estimator can process them.
+   */
+  private fun convertRecordedSamplesToFloatingPoint(
+    recordedPulseCodeModulationSamples: ShortArray
+  ): FloatArray {
+    return recordedPulseCodeModulationSamples.map { sampleValue ->
+      sampleValue / Short.MAX_VALUE.toFloat()
+    }.toFloatArray()
+  }
+
+  /**
+   * Writes a success log entry with duration and result details.
+   */
+  private fun logMeasurementSuccess(
+    measurementStartTimeInNanoseconds: Long,
+    distanceMeasurement: DistanceMeasurement
+  ) {
+    val measurementDurationInMilliseconds =
+      (SystemClock.elapsedRealtimeNanos() - measurementStartTimeInNanoseconds) /
+        NANOSECONDS_PER_MILLISECOND
+
+    applicationLogRecorder.recordInformationMessage(
+      tag = TAG,
+      message =
+        "Measurement completed in %.2f ms with distance %.2f m and confidence %.2f.".format(
+          Locale.US,
+          measurementDurationInMilliseconds,
+          distanceMeasurement.measuredDistanceInMeters,
+          distanceMeasurement.measurementConfidence
+        )
+    )
+  }
+
+  /**
+   * Records a failure with the shared logging format and then rethrows it so the
+   * caller still sees the original error.
+   */
+  private fun logAndRethrowMeasurementFailure(exception: Exception): Nothing {
+    applicationLogRecorder.recordErrorMessage(
+      tag = TAG,
+      message = "Measurement failed because the audio pipeline or estimator rejected the result.",
+      throwable = exception
+    )
+    throw exception
   }
 
   /**
@@ -144,10 +213,8 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
       AudioFormat.ENCODING_PCM_16BIT
     )
 
-    if (platformMinimumBufferSizeInBytes <= 0) {
-      throw IllegalStateException(
-        "AudioRecord could not provide a valid minimum buffer size."
-      )
+    check(platformMinimumBufferSizeInBytes > 0) {
+      "AudioRecord could not provide a valid minimum buffer size."
     }
 
     val requestedBufferSizeInBytes = recordingSampleCount * Short.SIZE_BYTES
@@ -224,7 +291,9 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
     return audioTrack
   }
 
-  companion object {
+  private companion object {
+    private const val MILLISECONDS_PER_SECOND = 1_000.0
+    private const val NANOSECONDS_PER_MILLISECOND = 1_000_000.0
     private const val TAG = "AndroidAudioPulseEchoDistanceMeasuringService"
   }
 }

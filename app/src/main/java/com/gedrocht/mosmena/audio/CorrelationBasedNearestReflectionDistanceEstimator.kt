@@ -1,10 +1,10 @@
 package com.gedrocht.mosmena.audio
 
+import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
-import java.util.Locale
 
 /**
  * Uses normalized cross-correlation to find the nearest reflection.
@@ -38,33 +38,26 @@ class CorrelationBasedNearestReflectionDistanceEstimator {
       emittedPulseSamples = emittedPulseSamples,
       recordedSamples = recordedSamples
     )
-
     val maximumAbsoluteCorrelation = correlationValues.maxOf { it.absoluteValue }
-    val minimumPeakHeight = maximumAbsoluteCorrelation * 0.45
-    val searchStartSampleIndex =
-      (
-        acousticPulseConfiguration.prePlaybackCaptureDurationInMilliseconds *
-          acousticPulseConfiguration.sampleRateInHertz / 1_000.0
-        ).toInt()
+    val minimumPeakHeight = maximumAbsoluteCorrelation * MINIMUM_PEAK_HEIGHT_RATIO
+    val searchStartSampleIndex = (
+      acousticPulseConfiguration.prePlaybackCaptureDurationInMilliseconds *
+        acousticPulseConfiguration.sampleRateInHertz / MILLISECONDS_PER_SECOND
+      ).toInt()
 
     val minimumReflectionDelayInSamples = max(
-      1,
-      (
-        (
-          acousticPulseConfiguration.minimumExpectedDistanceInMeters * 2.0 /
-            acousticPulseConfiguration.speedOfSoundInMetersPerSecond
-          ) * acousticPulseConfiguration.sampleRateInHertz
-        ).toInt()
+      MINIMUM_DELAY_SAMPLE_COUNT,
+      convertDistanceInMetersToRoundTripDelayInSamples(
+        distanceInMeters = acousticPulseConfiguration.minimumExpectedDistanceInMeters,
+        acousticPulseConfiguration = acousticPulseConfiguration
+      )
     )
-
     val maximumReflectionDelayInSamples = max(
       minimumReflectionDelayInSamples,
-      (
-        (
-          acousticPulseConfiguration.maximumExpectedDistanceInMeters * 2.0 /
-            acousticPulseConfiguration.speedOfSoundInMetersPerSecond
-          ) * acousticPulseConfiguration.sampleRateInHertz
-        ).toInt()
+      convertDistanceInMetersToRoundTripDelayInSamples(
+        distanceInMeters = acousticPulseConfiguration.maximumExpectedDistanceInMeters,
+        acousticPulseConfiguration = acousticPulseConfiguration
+      )
     )
 
     val detectedPeaks = detectPeakSampleIndices(
@@ -72,35 +65,34 @@ class CorrelationBasedNearestReflectionDistanceEstimator {
       minimumPeakHeight = minimumPeakHeight
     ).filter { peakSampleIndex -> peakSampleIndex >= searchStartSampleIndex }
 
-    val directCouplingPeakSampleIndex = detectedPeaks.firstOrNull()
-      ?: throw IllegalStateException(
-        "The algorithm could not find the direct speaker-to-microphone coupling peak."
-      )
-
-    val nearestReflectionPeakSampleIndex = detectedPeaks.firstOrNull { peakSampleIndex ->
-      val sampleDelayAfterDirectCoupling = peakSampleIndex - directCouplingPeakSampleIndex
-      sampleDelayAfterDirectCoupling in minimumReflectionDelayInSamples..maximumReflectionDelayInSamples
-    } ?: throw IllegalStateException(
+    val directCouplingPeakSampleIndex = checkNotNull(detectedPeaks.firstOrNull()) {
+      "The algorithm could not find the direct speaker-to-microphone coupling peak."
+    }
+    val nearestReflectionPeakSampleIndex = checkNotNull(
+      detectedPeaks.firstOrNull { peakSampleIndex ->
+        val sampleDelayAfterDirectCoupling = peakSampleIndex - directCouplingPeakSampleIndex
+        sampleDelayAfterDirectCoupling in minimumReflectionDelayInSamples..maximumReflectionDelayInSamples
+      }
+    ) {
       "No reflection peak was found inside the expected distance window."
-    )
+    }
 
     val sampleDelayBetweenDirectCouplingAndReflection =
       nearestReflectionPeakSampleIndex - directCouplingPeakSampleIndex
-
     val roundTripTravelTimeInSeconds =
       sampleDelayBetweenDirectCouplingAndReflection.toDouble() /
         acousticPulseConfiguration.sampleRateInHertz
-
-    val measuredDistanceInMeters =
-      roundTripTravelTimeInSeconds *
-        acousticPulseConfiguration.speedOfSoundInMetersPerSecond / 2.0
+    val measuredDistanceInMeters = roundTripTravelTimeInSeconds *
+      acousticPulseConfiguration.speedOfSoundInMetersPerSecond / ROUND_TRIP_DISTANCE_MULTIPLIER
 
     val reflectionCorrelationStrength = correlationValues[nearestReflectionPeakSampleIndex].absoluteValue
-    val measurementConfidence =
-      min(
-        1.0,
-        reflectionCorrelationStrength / max(maximumAbsoluteCorrelation, 0.0001)
+    val measurementConfidence = min(
+      MAXIMUM_MEASUREMENT_CONFIDENCE,
+      reflectionCorrelationStrength / max(
+        maximumAbsoluteCorrelation,
+        MINIMUM_CONFIDENCE_DENOMINATOR
       )
+    )
 
     return DistanceMeasurement(
       measuredDistanceInMeters = measuredDistanceInMeters,
@@ -143,11 +135,27 @@ class CorrelationBasedNearestReflectionDistanceEstimator {
         recordedWindowEnergy += recordedSampleValue * recordedSampleValue
       }
 
-      correlationValues[correlationIndex] =
-        numerator / sqrt((emittedPulseEnergy * recordedWindowEnergy).coerceAtLeast(0.0000001))
+      correlationValues[correlationIndex] = numerator / sqrt(
+        (emittedPulseEnergy * recordedWindowEnergy).coerceAtLeast(MINIMUM_NORMALIZATION_ENERGY)
+      )
     }
 
     return correlationValues
+  }
+
+  /**
+   * Converts a physical round-trip distance into the equivalent sample delay.
+   */
+  private fun convertDistanceInMetersToRoundTripDelayInSamples(
+    distanceInMeters: Double,
+    acousticPulseConfiguration: AcousticPulseConfiguration
+  ): Int {
+    return (
+      (
+        distanceInMeters * ROUND_TRIP_DISTANCE_MULTIPLIER /
+          acousticPulseConfiguration.speedOfSoundInMetersPerSecond
+        ) * acousticPulseConfiguration.sampleRateInHertz
+      ).toInt()
   }
 
   /**
@@ -174,5 +182,15 @@ class CorrelationBasedNearestReflectionDistanceEstimator {
     }
 
     return peakSampleIndices
+  }
+
+  private companion object {
+    private const val MAXIMUM_MEASUREMENT_CONFIDENCE = 1.0
+    private const val MILLISECONDS_PER_SECOND = 1_000.0
+    private const val MINIMUM_CONFIDENCE_DENOMINATOR = 0.0001
+    private const val MINIMUM_DELAY_SAMPLE_COUNT = 1
+    private const val MINIMUM_NORMALIZATION_ENERGY = 0.0000001
+    private const val MINIMUM_PEAK_HEIGHT_RATIO = 0.45
+    private const val ROUND_TRIP_DISTANCE_MULTIPLIER = 2.0
   }
 }

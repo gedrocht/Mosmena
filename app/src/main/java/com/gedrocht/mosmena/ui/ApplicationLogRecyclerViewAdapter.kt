@@ -45,6 +45,9 @@ class ApplicationLogRecyclerViewAdapter :
     private val itemApplicationLogMessageBinding: ItemApplicationLogMessageBinding
   ) : RecyclerView.ViewHolder(itemApplicationLogMessageBinding.root) {
 
+    /**
+     * Copies one log message into the visible text views for this row.
+     */
     fun bind(applicationLogMessage: ApplicationLogMessage) {
       itemApplicationLogMessageBinding.logTimestampTextView.text = applicationLogMessage.timestampText
       itemApplicationLogMessageBinding.logSeverityAndTagTextView.text =

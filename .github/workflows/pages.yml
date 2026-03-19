@@ -60,7 +60,7 @@ jobs:
       - name: Generate site
         shell: bash
         run: |
-          ./gradlew :app:dokkaHtml --stacktrace --no-daemon
+          ./gradlew :app:dokkaGeneratePublicationHtml --stacktrace --no-daemon --no-configuration-cache
           mkdocs build --strict
           mkdir -p site/api/reference
           cp -R app/build/dokka/html/. site/api/reference/

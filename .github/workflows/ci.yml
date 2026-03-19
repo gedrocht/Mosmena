@@ -61,7 +61,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run static analysis
-        run: ./gradlew detekt ktlintCheck lintDebug :app:dokkaHtml --stacktrace --no-daemon
+        run: ./gradlew detekt ktlintCheck lintDebug :app:dokkaGeneratePublicationHtml --stacktrace --no-daemon --no-configuration-cache
 
       - name: Upload Detekt SARIF
         if: ${{ hashFiles('**/build/reports/detekt/*.sarif') != '' }}
@@ -119,7 +119,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run unit tests and verify coverage
-        run: ./gradlew testDebugUnitTest koverXmlReport koverVerify --stacktrace --no-daemon
+        run: ./gradlew testDebugUnitTest koverXmlReport koverVerify --stacktrace --no-daemon --no-configuration-cache
 
       - name: Upload unit test and coverage artifacts
         if: always()
@@ -174,7 +174,7 @@ jobs:
       - name: Build docs and API reference
         shell: bash
         run: |
-          ./gradlew :app:dokkaHtml --stacktrace --no-daemon
+          ./gradlew :app:dokkaGeneratePublicationHtml --stacktrace --no-daemon --no-configuration-cache
           mkdocs build --strict
 
   instrumentation-tests:
@@ -213,7 +213,7 @@ jobs:
           emulator-boot-timeout: 900
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest --stacktrace --no-daemon
+          script: ./gradlew connectedDebugAndroidTest --stacktrace --no-daemon --no-configuration-cache
 
       - name: Upload instrumentation test artifacts
         if: always()

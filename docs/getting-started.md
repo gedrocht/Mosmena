@@ -53,7 +53,7 @@ cd Mosmena
 ## Generate API docs
 
 ```bash
-./gradlew dokkaHtml
+./gradlew :app:dokkaGeneratePublicationHtml
 ```
 
 The generated HTML appears in `app/build/dokka/html/`.

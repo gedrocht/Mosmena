@@ -15,7 +15,7 @@ $gradleArguments = @(
   "lintDebug",
   "testDebugUnitTest",
   "koverVerify",
-  ":app:dokkaHtml"
+  ":app:dokkaGeneratePublicationHtml"
 )
 
 if ($IncludeInstrumentationTests) {
