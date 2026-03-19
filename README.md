@@ -35,6 +35,7 @@ Treat the app as an educational ranging experiment, not a safety-critical measur
 - `config/`: static analysis configuration
 - `docs/`: GitHub Pages documentation source
 - `wiki/`: DokuWiki content and Docker Compose configuration
+- `scripts/`: local developer entrypoints for build, test, quality, CI, and GitHub helpers
 - `scripts/ci/`: repository validation scripts
 - `scripts/github/`: optional GitHub repository configuration helpers
 
@@ -56,6 +57,29 @@ Treat the app as an educational ranging experiment, not a safety-critical measur
 ./gradlew koverXmlReport koverVerify
 ./gradlew dokkaHtml
 ```
+
+### Local helper scripts
+
+If you prefer discoverable entrypoints under `scripts/`, use:
+
+```bash
+./scripts/build.sh
+./scripts/test.sh
+./scripts/quality.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+.\scripts\build.ps1
+.\scripts\test.ps1
+.\scripts\quality.ps1
+```
+
+Optional flags:
+
+- `build`: `--clean`
+- `quality`: `--include-instrumentation-tests`
 
 ## Documentation layers
 

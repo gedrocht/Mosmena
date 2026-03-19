@@ -16,6 +16,14 @@ Thank you for helping improve Mosmena.
 ./gradlew clean ktlintCheck detekt lintDebug testDebugUnitTest connectedDebugAndroidTest koverVerify
 ```
 
+Equivalent helper scripts are also available:
+
+```bash
+./scripts/build.sh
+./scripts/test.sh
+./scripts/quality.sh --include-instrumentation-tests
+```
+
 ## Pull request quality bar
 
 - All GitHub Actions checks must pass.
