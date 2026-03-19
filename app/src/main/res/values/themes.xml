@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <style name="Theme.Mosmena" parent="Theme.Material3.DayNight.NoActionBar">
     <item name="colorPrimary">@color/mosmena_primary</item>
     <item name="colorOnPrimary">@color/mosmena_on_primary</item>
@@ -9,7 +9,7 @@
     <item name="colorSurfaceVariant">@color/mosmena_surface_variant</item>
     <item name="colorOnSurface">@color/mosmena_on_surface</item>
     <item name="colorOutline">@color/mosmena_outline</item>
-    <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
     <item name="android:navigationBarColor">@color/mosmena_surface</item>
   </style>
 </resources>

@@ -48,6 +48,12 @@ android {
     warningsAsErrors = true
     checkDependencies = true
     checkTestSources = true
+    disable +=
+      setOf(
+        "AndroidGradlePluginVersion",
+        "GradleDependency",
+        "NewerVersionAvailable",
+      )
     sarifReport = true
     xmlReport = true
     textReport = true

@@ -1,11 +1,14 @@
 package com.gedrocht.mosmena.audio
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.AudioTrack
 import android.media.MediaRecorder
 import android.os.SystemClock
+import androidx.annotation.RequiresPermission
 import com.gedrocht.mosmena.logging.ApplicationLogRecorder
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
@@ -27,6 +30,7 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
   /**
    * Runs one full measurement cycle on a background dispatcher.
    */
+  @RequiresPermission(Manifest.permission.RECORD_AUDIO)
   override suspend fun measureNearestReflectionDistance(
     acousticPulseConfiguration: AcousticPulseConfiguration
   ): DistanceMeasurement = withContext(inputOutputCoroutineDispatcher) {
@@ -40,17 +44,20 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
       acousticPulseConfiguration = acousticPulseConfiguration,
       recordingSampleCount = recordingSampleCount
     )
-    val audioRecord = createAudioRecord(
-      acousticPulseConfiguration = acousticPulseConfiguration,
-      recordingBufferSizeInBytes = recordingBufferSizeInBytes
-    )
-    val audioTrack = createAudioTrack(
-      acousticPulseConfiguration = acousticPulseConfiguration,
-      generatedPulseSignal = generatedPulseSignal
-    )
     val measurementStartTimeInNanoseconds = SystemClock.elapsedRealtimeNanos()
+    var audioRecord: AudioRecord? = null
+    var audioTrack: AudioTrack? = null
 
     try {
+      audioRecord = createAudioRecord(
+        acousticPulseConfiguration = acousticPulseConfiguration,
+        recordingBufferSizeInBytes = recordingBufferSizeInBytes
+      )
+      audioTrack = createAudioTrack(
+        acousticPulseConfiguration = acousticPulseConfiguration,
+        generatedPulseSignal = generatedPulseSignal
+      )
+
       val recordedPulseCodeModulationSamples = captureRecordedPulseCodeModulationSamples(
         audioRecord = audioRecord,
         audioTrack = audioTrack,
@@ -72,8 +79,8 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
     } catch (exception: SecurityException) {
       logAndRethrowMeasurementFailure(exception)
     } finally {
-      audioTrack.release()
-      audioRecord.release()
+      audioTrack?.release()
+      audioRecord?.release()
     }
   }
 
@@ -224,6 +231,8 @@ class AndroidAudioPulseEchoDistanceMeasuringService(
   /**
    * Creates the microphone capture object.
    */
+  @SuppressLint("MissingPermission")
+  @RequiresPermission(Manifest.permission.RECORD_AUDIO)
   private fun createAudioRecord(
     acousticPulseConfiguration: AcousticPulseConfiguration,
     recordingBufferSizeInBytes: Int
