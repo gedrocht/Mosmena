@@ -21,6 +21,7 @@ markdown_extensions:
   - tables
 nav:
   - Home: index.md
+  - Beginner Quickstart: beginner-quickstart.md
   - Getting Started: getting-started.md
   - Tutorial:
       - First Measurement Walkthrough: tutorials/first-measurement.md

@@ -13,15 +13,23 @@ Thank you for helping improve Mosmena.
 ## Recommended local workflow
 
 ```bash
-./gradlew clean ktlintCheck detekt lintDebug testDebugUnitTest connectedDebugAndroidTest koverVerify
+./scripts/doctor.sh
+./scripts/setup.sh
+./scripts/build.sh
+./scripts/run-android.sh
+./scripts/test.sh
+./scripts/quality.sh --include-instrumentation-tests
 ```
 
 Equivalent helper scripts are also available:
 
-```bash
-./scripts/build.sh
-./scripts/test.sh
-./scripts/quality.sh --include-instrumentation-tests
+```powershell
+.\scripts\doctor.ps1
+.\scripts\setup.ps1
+.\scripts\build.ps1
+.\scripts\run-android.ps1
+.\scripts\test.ps1
+.\scripts\quality.ps1 -IncludeInstrumentationTests
 ```
 
 ## Pull request quality bar

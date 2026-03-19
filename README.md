@@ -6,6 +6,22 @@
 
 Mosmena is an Android demonstration project that emits a short near-ultrasonic pulse from the phone speaker, records the response through the microphone, estimates the nearest acoustic reflection, and visualizes the result.
 
+## Start Here If You Are New
+
+If you are a complete beginner, use this exact path:
+
+1. Read [scripts/README.md](scripts/README.md).
+2. Run `.\scripts\doctor.ps1` on Windows or `./scripts/doctor.sh` on macOS/Linux.
+3. Run `.\scripts\setup.ps1` or `./scripts/setup.sh`.
+4. Build the app with `.\scripts\build.ps1` or `./scripts/build.sh`.
+5. Run the app on a connected device or emulator with `.\scripts\run-android.ps1` or `./scripts/run-android.sh`.
+6. Run tests with `.\scripts\test.ps1` or `./scripts/test.sh`.
+7. Run the full quality suite with `.\scripts\quality.ps1` or `./scripts/quality.sh`.
+8. Build or serve the docs with `.\scripts\docs.ps1 -Serve` or `./scripts/docs.sh --serve`.
+9. Start the local wiki with `.\scripts\wiki.ps1 -Detached` or `./scripts/wiki.sh --detached`.
+
+If you just want a command list, run `.\scripts\help.ps1` or `./scripts/help.sh`.
+
 ## Why this repository exists
 
 This repository is intentionally opinionated:
@@ -46,6 +62,9 @@ Treat the app as an educational ranging experiment, not a safety-critical measur
 - Java Development Kit 17
 - Android SDK platform 36
 - Android build-tools 36.0.0
+- Android platform-tools
+- Python 3 for the docs site
+- Docker Desktop for the local wiki
 
 ### Common commands
 
@@ -63,23 +82,37 @@ Treat the app as an educational ranging experiment, not a safety-critical measur
 If you prefer discoverable entrypoints under `scripts/`, use:
 
 ```bash
+./scripts/help.sh
+./scripts/doctor.sh
+./scripts/setup.sh
 ./scripts/build.sh
+./scripts/run-android.sh
 ./scripts/test.sh
 ./scripts/quality.sh
+./scripts/docs.sh --serve
+./scripts/wiki.sh --detached
 ```
 
 On Windows PowerShell:
 
 ```powershell
+.\scripts\help.ps1
+.\scripts\doctor.ps1
+.\scripts\setup.ps1
 .\scripts\build.ps1
+.\scripts\run-android.ps1
 .\scripts\test.ps1
 .\scripts\quality.ps1
+.\scripts\docs.ps1 -Serve
+.\scripts\wiki.ps1 -Detached
 ```
 
 Optional flags:
 
 - `build`: `--clean`
 - `quality`: `--include-instrumentation-tests`
+- `docs`: `--serve`
+- `wiki`: `--detached`
 
 ## Documentation layers
 

@@ -19,6 +19,7 @@ Mosmena is an Android learning project that demonstrates a simple acoustic pulse
 
 ## Documentation map
 
+- Start with [Beginner Quickstart](beginner-quickstart.md) if you want the shortest step-by-step path.
 - Start with [Getting Started](getting-started.md) if you are new to the repo.
 - Read [First Measurement Walkthrough](tutorials/first-measurement.md) for a guided tour.
 - Read [Acoustic Ranging Explained](acoustic-ranging-explained.md) to understand the algorithm.

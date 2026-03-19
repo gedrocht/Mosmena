@@ -19,6 +19,7 @@ __pycache__/
 coverage.xml
 htmlcov/
 .venv/
+.venv-docs/
 venv/
 
 # Node.js

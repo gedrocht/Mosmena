@@ -9,6 +9,7 @@ This wiki is designed for complete beginners. Read these pages before reading th
   - [[getting_started|Getting Started]]
   - [[acoustic_ranging_primer|Acoustic Ranging Primer]]
   - [[development_workflow|Development Workflow]]
+  - [[build_run_test|Build, Run, and Test]]
 
 ===== What Mosmena is =====
 

@@ -1,0 +1,65 @@
+====== Build, Run, and Test ======
+
+If you are new, use the scripts in the `scripts/` folder instead of trying to remember Gradle task names.
+
+===== Check prerequisites =====
+
+Windows:
+
+  * `.\scripts\doctor.ps1`
+
+macOS or Linux:
+
+  * `./scripts/doctor.sh`
+
+===== Prepare local configuration =====
+
+Windows:
+
+  * `.\scripts\setup.ps1`
+
+macOS or Linux:
+
+  * `./scripts/setup.sh`
+
+===== Build the app =====
+
+Windows:
+
+  * `.\scripts\build.ps1`
+
+macOS or Linux:
+
+  * `./scripts/build.sh`
+
+===== Run the app =====
+
+Start an emulator or connect a phone first.
+
+Windows:
+
+  * `.\scripts\run-android.ps1`
+
+macOS or Linux:
+
+  * `./scripts/run-android.sh`
+
+===== Run tests =====
+
+Windows:
+
+  * `.\scripts\test.ps1`
+
+macOS or Linux:
+
+  * `./scripts/test.sh`
+
+===== Run the quality suite =====
+
+Windows:
+
+  * `.\scripts\quality.ps1`
+
+macOS or Linux:
+
+  * `./scripts/quality.sh`
