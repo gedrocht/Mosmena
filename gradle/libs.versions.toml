@@ -20,7 +20,7 @@ material = "1.12.0"
 mockk = "1.13.13"
 timber = "5.0.1"
 truth = "1.4.4"
-turbine = "1.1.0"
+turbine = "1.2.1"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "androidx-activity" }
