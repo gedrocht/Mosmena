@@ -2,25 +2,7 @@ param(
   [switch]$SkipLocalProperties
 )
 
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
-
-function Get-AndroidSdkPathIfAvailable {
-  $candidateAndroidSdkPaths = @(
-    $env:ANDROID_SDK_ROOT,
-    $env:ANDROID_HOME,
-    (Join-Path $env:LOCALAPPDATA "Android\Sdk"),
-    (Join-Path $env:USERPROFILE "AppData\Local\Android\Sdk")
-  ) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
-
-  foreach ($candidateAndroidSdkPath in $candidateAndroidSdkPaths) {
-    if (Test-Path $candidateAndroidSdkPath) {
-      return $candidateAndroidSdkPath
-    }
-  }
-
-  return $null
-}
+. (Join-Path $PSScriptRoot "common.ps1")
 
 $repositoryRootPath = Split-Path -Parent $PSScriptRoot
 Set-Location $repositoryRootPath
@@ -35,16 +17,18 @@ Write-Host "Step 4: Install Docker Desktop if you want to run the local wiki."
 Write-Host ""
 
 $androidSdkPath = Get-AndroidSdkPathIfAvailable
-$localPropertiesPath = Join-Path $repositoryRootPath "local.properties"
 
-if (-not $SkipLocalProperties -and $null -ne $androidSdkPath -and -not (Test-Path $localPropertiesPath)) {
-  $escapedAndroidSdkPath = $androidSdkPath.Replace("\", "\\")
-  Set-Content -Path $localPropertiesPath -Value "sdk.dir=$escapedAndroidSdkPath"
-  Write-Host "Created local.properties pointing at:"
-  Write-Host $androidSdkPath
+if (-not $SkipLocalProperties -and $null -ne $androidSdkPath) {
+  $androidSdkState = Ensure-AndroidSdkReady -RepositoryRootPath $repositoryRootPath
+  if ($androidSdkState.LocalPropertiesChanged) {
+    Write-Host "Updated local.properties to use Android SDK at:"
+    Write-Host $androidSdkPath
+  } else {
+    Write-Host "local.properties is already configured."
+  }
   Write-Host ""
-} elseif (-not $SkipLocalProperties -and Test-Path $localPropertiesPath) {
-  Write-Host "local.properties already exists."
+} elseif (-not $SkipLocalProperties -and (Test-Path (Join-Path $repositoryRootPath "local.properties"))) {
+  Write-Host "local.properties already exists, but no Android SDK path was detected automatically."
   Write-Host ""
 } else {
   Write-Host "Skipped local.properties creation."

@@ -1,5 +1,4 @@
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "common.ps1")
 
 $repositoryRootPath = Split-Path -Parent $PSScriptRoot
 Set-Location $repositoryRootPath
@@ -14,7 +13,7 @@ if ($connectedDeviceLines.Count -eq 0) {
 }
 
 Write-Host "Installing the debug build on the connected Android device or emulator..."
-& "$repositoryRootPath\gradlew.bat" installDebug
+Invoke-MosmenaGradle -RepositoryRootPath $repositoryRootPath -GradleArguments @("installDebug")
 
 Write-Host "Launching Mosmena..."
 adb shell am start -n com.gedrocht.mosmena/.ui.MainActivity
