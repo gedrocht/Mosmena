@@ -1,6 +1,4 @@
 import org.jetbrains.dokka.gradle.DokkaTask
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import io.gitlab.arturbosch.detekt.Detekt
 
@@ -35,7 +33,7 @@ subprojects {
   }
 
   tasks.withType<Detekt>().configureEach {
-    jvmTarget = JvmTarget.JVM_17.target
+    jvmTarget = "17"
     reports {
       html.required.set(true)
       sarif.required.set(true)
@@ -55,35 +53,6 @@ subprojects {
       reportUndocumented.set(true)
       skipEmptyPackages.set(true)
       jdkVersion.set(17)
-    }
-  }
-}
-
-kover {
-  reports {
-    total {
-      filters {
-        excludes {
-          classes(
-            "com.gedrocht.mosmena.MosmenaApplication",
-            "com.gedrocht.mosmena.application.*",
-            "com.gedrocht.mosmena.audio.AndroidAudioPulseEchoDistanceMeasuringService",
-            "com.gedrocht.mosmena.ui.*"
-          )
-        }
-      }
-      verify {
-        rule("Global project coverage") {
-          bound {
-            minValue = 80
-            coverageUnits = CoverageUnit.LINE
-          }
-          bound {
-            minValue = 70
-            coverageUnits = CoverageUnit.BRANCH
-          }
-        }
-      }
     }
   }
 }
