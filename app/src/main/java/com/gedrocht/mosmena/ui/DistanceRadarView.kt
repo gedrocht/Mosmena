@@ -29,7 +29,7 @@ class DistanceRadarView @JvmOverloads constructor(
   private val outlinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
     color = ContextCompat.getColor(context, R.color.mosmena_outline)
     style = Paint.Style.STROKE
-    strokeWidth = 4f
+    strokeWidth = OUTLINE_STROKE_WIDTH_IN_PIXELS
   }
 
   private val directCouplingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -44,7 +44,7 @@ class DistanceRadarView @JvmOverloads constructor(
 
   private val labelPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
     color = ContextCompat.getColor(context, R.color.mosmena_on_surface)
-    textSize = 36f
+    textSize = LABEL_TEXT_SIZE_IN_PIXELS
   }
 
   private var latestDistanceMeasurement: DistanceMeasurement? = null
@@ -53,7 +53,7 @@ class DistanceRadarView @JvmOverloads constructor(
    * The visualization is intentionally capped at three meters because the
    * simple pulse-echo approach becomes unreliable on many phones beyond that.
    */
-  private val maximumDisplayedDistanceInMeters = 3.0
+  private val maximumDisplayedDistanceInMeters = MAXIMUM_DISPLAYED_DISTANCE_IN_METERS
 
   /**
    * Stores the latest measurement and requests a redraw.
@@ -69,74 +69,137 @@ class DistanceRadarView @JvmOverloads constructor(
   override fun onDraw(canvas: Canvas) {
     super.onDraw(canvas)
 
-    val horizontalPaddingInPixels = 48f
-    val verticalPaddingInPixels = 32f
-    val drawingLeft = horizontalPaddingInPixels
-    val drawingTop = verticalPaddingInPixels
-    val drawingRight = width - horizontalPaddingInPixels
-    val drawingBottom = height - verticalPaddingInPixels
-
-    canvas.drawRoundRect(
-      drawingLeft,
-      drawingTop,
-      drawingRight,
-      drawingBottom,
-      28f,
-      28f,
-      surfacePaint
-    )
-    canvas.drawRoundRect(
-      drawingLeft,
-      drawingTop,
-      drawingRight,
-      drawingBottom,
-      28f,
-      28f,
-      outlinePaint
-    )
-
-    drawDistanceScale(
-      canvas = canvas,
-      drawingLeft = drawingLeft,
-      drawingRight = drawingRight,
-      drawingBottom = drawingBottom
-    )
-
-    val phoneLeft = drawingLeft + 28f
-    val phoneRight = phoneLeft + 48f
-    canvas.drawRoundRect(
-      phoneLeft,
-      drawingTop + 40f,
-      phoneRight,
-      drawingBottom - 40f,
-      18f,
-      18f,
-      directCouplingPaint
-    )
+    val drawingBounds = createDrawingBounds()
+    drawBackgroundPanel(canvas = canvas, drawingBounds = drawingBounds)
+    drawDistanceScale(canvas = canvas, drawingBounds = drawingBounds)
+    drawPhoneMarker(canvas = canvas, drawingBounds = drawingBounds)
 
     val distanceMeasurement = latestDistanceMeasurement
     if (distanceMeasurement == null) {
-      canvas.drawText(
-        context.getString(R.string.distance_view_no_measurement),
-        drawingLeft + 110f,
-        drawingTop + 100f,
-        labelPaint
-      )
+      drawEmptyState(canvas = canvas, drawingBounds = drawingBounds)
       return
     }
 
-    val normalizedDistance =
-      min(1.0, distanceMeasurement.measuredDistanceInMeters / maximumDisplayedDistanceInMeters)
-    val reflectionMarkerLeft = (
-      drawingLeft + 120f + (drawingRight - drawingLeft - 180f) * normalizedDistance
-      ).toFloat()
+    drawReflectionMarker(
+      canvas = canvas,
+      drawingBounds = drawingBounds,
+      distanceMeasurement = distanceMeasurement
+    )
+    drawMeasurementLabels(
+      canvas = canvas,
+      drawingBounds = drawingBounds,
+      distanceMeasurement = distanceMeasurement
+    )
+  }
+
+  /**
+   * Builds the inner panel bounds that all drawing helpers share.
+   */
+  private fun createDrawingBounds(): DrawingBounds {
+    return DrawingBounds(
+      left = HORIZONTAL_PADDING_IN_PIXELS,
+      top = VERTICAL_PADDING_IN_PIXELS,
+      right = width - HORIZONTAL_PADDING_IN_PIXELS,
+      bottom = height - VERTICAL_PADDING_IN_PIXELS
+    )
+  }
+
+  /**
+   * Draws the rounded background panel that contains the whole visualization.
+   */
+  private fun drawBackgroundPanel(
+    canvas: Canvas,
+    drawingBounds: DrawingBounds
+  ) {
+    canvas.drawRoundRect(
+      drawingBounds.left,
+      drawingBounds.top,
+      drawingBounds.right,
+      drawingBounds.bottom,
+      PANEL_CORNER_RADIUS_IN_PIXELS,
+      PANEL_CORNER_RADIUS_IN_PIXELS,
+      surfacePaint
+    )
+    canvas.drawRoundRect(
+      drawingBounds.left,
+      drawingBounds.top,
+      drawingBounds.right,
+      drawingBounds.bottom,
+      PANEL_CORNER_RADIUS_IN_PIXELS,
+      PANEL_CORNER_RADIUS_IN_PIXELS,
+      outlinePaint
+    )
+  }
+
+  /**
+   * Draws the left-side marker that represents the phone itself.
+   */
+  private fun drawPhoneMarker(
+    canvas: Canvas,
+    drawingBounds: DrawingBounds
+  ) {
+    val phoneLeft = drawingBounds.left + PHONE_LEFT_MARGIN_IN_PIXELS
+    val phoneRight = phoneLeft + PHONE_WIDTH_IN_PIXELS
+
+    canvas.drawRoundRect(
+      phoneLeft,
+      drawingBounds.top + PHONE_VERTICAL_MARGIN_IN_PIXELS,
+      phoneRight,
+      drawingBounds.bottom - PHONE_VERTICAL_MARGIN_IN_PIXELS,
+      PHONE_CORNER_RADIUS_IN_PIXELS,
+      PHONE_CORNER_RADIUS_IN_PIXELS,
+      directCouplingPaint
+    )
+  }
+
+  /**
+   * Draws the placeholder text shown before the user has taken a measurement.
+   */
+  private fun drawEmptyState(
+    canvas: Canvas,
+    drawingBounds: DrawingBounds
+  ) {
+    canvas.drawText(
+      context.getString(R.string.distance_view_no_measurement),
+      drawingBounds.left + EMPTY_STATE_TEXT_LEFT_OFFSET_IN_PIXELS,
+      drawingBounds.top + EMPTY_STATE_TEXT_TOP_OFFSET_IN_PIXELS,
+      labelPaint
+    )
+  }
+
+  /**
+   * Draws the reflected-surface marker at the measured horizontal position.
+   */
+  private fun drawReflectionMarker(
+    canvas: Canvas,
+    drawingBounds: DrawingBounds,
+    distanceMeasurement: DistanceMeasurement
+  ) {
+    val reflectionMarkerLeft = calculateHorizontalPositionForDistance(
+      drawingBounds = drawingBounds,
+      distanceInMeters = distanceMeasurement.measuredDistanceInMeters
+    )
 
     canvas.drawRect(
       reflectionMarkerLeft,
-      drawingTop + 28f,
-      reflectionMarkerLeft + 18f,
-      drawingBottom - 28f,
+      drawingBounds.top + REFLECTION_MARKER_VERTICAL_MARGIN_IN_PIXELS,
+      reflectionMarkerLeft + REFLECTION_MARKER_WIDTH_IN_PIXELS,
+      drawingBounds.bottom - REFLECTION_MARKER_VERTICAL_MARGIN_IN_PIXELS,
       reflectionPaint
+    )
+  }
+
+  /**
+   * Draws the distance and confidence labels for the most recent measurement.
+   */
+  private fun drawMeasurementLabels(
+    canvas: Canvas,
+    drawingBounds: DrawingBounds,
+    distanceMeasurement: DistanceMeasurement
+  ) {
+    val reflectionMarkerLeft = calculateHorizontalPositionForDistance(
+      drawingBounds = drawingBounds,
+      distanceInMeters = distanceMeasurement.measuredDistanceInMeters
     )
 
     canvas.drawText(
@@ -144,51 +207,112 @@ class DistanceRadarView @JvmOverloads constructor(
         R.string.distance_view_distance_label,
         distanceMeasurement.measuredDistanceInMeters
       ),
-      reflectionMarkerLeft - 24f,
-      drawingTop + 18f,
+      reflectionMarkerLeft - DISTANCE_LABEL_HORIZONTAL_OFFSET_IN_PIXELS,
+      drawingBounds.top + DISTANCE_LABEL_VERTICAL_OFFSET_IN_PIXELS,
       labelPaint
     )
-
     canvas.drawText(
       context.getString(
         R.string.distance_view_confidence_label,
-        distanceMeasurement.measurementConfidence * 100.0
+        distanceMeasurement.measurementConfidence * CONFIDENCE_PERCENT_MULTIPLIER
       ),
-      drawingLeft + 110f,
-      drawingBottom - 20f,
+      drawingBounds.left + CONFIDENCE_LABEL_LEFT_OFFSET_IN_PIXELS,
+      drawingBounds.bottom - CONFIDENCE_LABEL_BOTTOM_OFFSET_IN_PIXELS,
       labelPaint
     )
   }
 
   /**
-   * Draws a few simple guide labels under the visualization.
+   * Draws the meter markers along the bottom scale.
    */
   private fun drawDistanceScale(
     canvas: Canvas,
-    drawingLeft: Float,
-    drawingRight: Float,
-    drawingBottom: Float
+    drawingBounds: DrawingBounds
   ) {
-    val labelValuesInMeters = listOf(0.5, 1.0, 2.0, 3.0)
-    labelValuesInMeters.forEach { labelValueInMeters ->
-      val normalizedDistance = labelValueInMeters / maximumDisplayedDistanceInMeters
-      val labelPositionInPixels = (
-        drawingLeft + 120f + (drawingRight - drawingLeft - 180f) * normalizedDistance
-        ).toFloat()
+    SCALE_LABEL_VALUES_IN_METERS.forEach { labelValueInMeters ->
+      val labelPositionInPixels = calculateHorizontalPositionForDistance(
+        drawingBounds = drawingBounds,
+        distanceInMeters = labelValueInMeters
+      )
 
       canvas.drawLine(
         labelPositionInPixels,
-        drawingBottom - 60f,
+        drawingBounds.bottom - SCALE_TICK_TOP_OFFSET_IN_PIXELS,
         labelPositionInPixels,
-        drawingBottom - 20f,
+        drawingBounds.bottom - SCALE_TICK_BOTTOM_OFFSET_IN_PIXELS,
         outlinePaint
       )
       canvas.drawText(
         "${labelValueInMeters} m",
-        labelPositionInPixels - 24f,
-        drawingBottom + 8f,
+        labelPositionInPixels - SCALE_LABEL_HORIZONTAL_OFFSET_IN_PIXELS,
+        drawingBounds.bottom + SCALE_LABEL_BASELINE_OFFSET_IN_PIXELS,
         labelPaint
       )
     }
+  }
+
+  /**
+   * Converts a measured distance into the horizontal coordinate used by the
+   * phone, scale, and reflection marker.
+   */
+  private fun calculateHorizontalPositionForDistance(
+    drawingBounds: DrawingBounds,
+    distanceInMeters: Double
+  ): Float {
+    val normalizedDistance =
+      min(MAXIMUM_NORMALIZED_DISTANCE, distanceInMeters / maximumDisplayedDistanceInMeters)
+
+    return (
+      drawingBounds.left + DISTANCE_TRACK_LEFT_OFFSET_IN_PIXELS +
+        (drawingBounds.right - drawingBounds.left - DISTANCE_TRACK_RIGHT_MARGIN_IN_PIXELS) *
+          normalizedDistance
+      ).toFloat()
+  }
+
+  /**
+   * Simple container that keeps the panel edges together when passing them to
+   * helper methods.
+   */
+  private data class DrawingBounds(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float
+  )
+
+  private companion object {
+    private const val CONFIDENCE_LABEL_BOTTOM_OFFSET_IN_PIXELS = 20f
+    private const val CONFIDENCE_LABEL_LEFT_OFFSET_IN_PIXELS = 110f
+    private const val CONFIDENCE_PERCENT_MULTIPLIER = 100.0
+    private const val DISTANCE_LABEL_HORIZONTAL_OFFSET_IN_PIXELS = 24f
+    private const val DISTANCE_LABEL_VERTICAL_OFFSET_IN_PIXELS = 18f
+    private const val DISTANCE_TRACK_LEFT_OFFSET_IN_PIXELS = 120f
+    private const val DISTANCE_TRACK_RIGHT_MARGIN_IN_PIXELS = 180f
+    private const val EMPTY_STATE_TEXT_LEFT_OFFSET_IN_PIXELS = 110f
+    private const val EMPTY_STATE_TEXT_TOP_OFFSET_IN_PIXELS = 100f
+    private const val HORIZONTAL_PADDING_IN_PIXELS = 48f
+    private const val LABEL_TEXT_SIZE_IN_PIXELS = 36f
+    private const val MAXIMUM_DISPLAYED_DISTANCE_IN_METERS = 3.0
+    private const val MAXIMUM_NORMALIZED_DISTANCE = 1.0
+    private const val OUTLINE_STROKE_WIDTH_IN_PIXELS = 4f
+    private const val PANEL_CORNER_RADIUS_IN_PIXELS = 28f
+    private const val PHONE_CORNER_RADIUS_IN_PIXELS = 18f
+    private const val PHONE_LEFT_MARGIN_IN_PIXELS = 28f
+    private const val PHONE_VERTICAL_MARGIN_IN_PIXELS = 40f
+    private const val PHONE_WIDTH_IN_PIXELS = 48f
+    private const val REFLECTION_MARKER_VERTICAL_MARGIN_IN_PIXELS = 28f
+    private const val REFLECTION_MARKER_WIDTH_IN_PIXELS = 18f
+    private const val SCALE_LABEL_BASELINE_OFFSET_IN_PIXELS = 8f
+    private const val SCALE_LABEL_HORIZONTAL_OFFSET_IN_PIXELS = 24f
+    private const val SCALE_TICK_BOTTOM_OFFSET_IN_PIXELS = 20f
+    private const val SCALE_TICK_TOP_OFFSET_IN_PIXELS = 60f
+    private const val VERTICAL_PADDING_IN_PIXELS = 32f
+
+    private val SCALE_LABEL_VALUES_IN_METERS = listOf(
+      0.5,
+      1.0,
+      2.0,
+      MAXIMUM_DISPLAYED_DISTANCE_IN_METERS
+    )
   }
 }

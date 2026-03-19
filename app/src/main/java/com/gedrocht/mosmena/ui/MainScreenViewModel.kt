@@ -109,12 +109,13 @@ class MainScreenViewModel(
     return "Nearest reflection: %.2f meters\nConfidence: %.0f%%\nExplanation: %s".format(
       Locale.US,
       distanceMeasurement.measuredDistanceInMeters,
-      distanceMeasurement.measurementConfidence * 100.0,
+      distanceMeasurement.measurementConfidence * CONFIDENCE_PERCENT_MULTIPLIER,
       distanceMeasurement.humanReadableExplanation
     )
   }
 
-  companion object {
+  private companion object {
     private const val TAG = "MainScreenViewModel"
+    private const val CONFIDENCE_PERCENT_MULTIPLIER = 100.0
   }
 }

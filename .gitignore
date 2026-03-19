@@ -50,3 +50,6 @@ target/
 *.log
 *.tmp
 *.temp
+
+# Local tooling caches
+.tools/

@@ -1,10 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlinx.kover.gradle.plugin.dsl.CoverageUnit
-
 plugins {
   alias(libs.plugins.android.application)
-  alias(libs.plugins.jetbrains.kotlin.android)
   alias(libs.plugins.jetbrains.dokka)
   alias(libs.plugins.jetbrains.kotlinx.kover)
 }
@@ -38,7 +33,7 @@ android {
       isShrinkResources = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"),
-        "proguard-rules.pro"
+        "proguard-rules.pro",
       )
     }
   }
@@ -53,6 +48,12 @@ android {
     warningsAsErrors = true
     checkDependencies = true
     checkTestSources = true
+    disable +=
+      setOf(
+        "AndroidGradlePluginVersion",
+        "GradleDependency",
+        "NewerVersionAvailable",
+      )
     sarifReport = true
     xmlReport = true
     textReport = true
@@ -95,9 +96,8 @@ dependencies {
   androidTestImplementation(libs.androidx.test.rules)
 }
 
-tasks.withType<KotlinCompile>().configureEach {
+kotlin {
   compilerOptions {
-    jvmTarget.set(JvmTarget.JVM_17)
     allWarningsAsErrors.set(true)
     freeCompilerArgs.add("-Xjspecify-annotations=strict")
   }
@@ -112,20 +112,14 @@ kover {
             "com.gedrocht.mosmena.MosmenaApplication",
             "com.gedrocht.mosmena.application.*",
             "com.gedrocht.mosmena.audio.AndroidAudioPulseEchoDistanceMeasuringService",
-            "com.gedrocht.mosmena.ui.*"
+            "com.gedrocht.mosmena.ui.*",
           )
         }
       }
       verify {
         rule("Application coverage") {
-          bound {
-            minValue = 85
-            coverageUnits = CoverageUnit.LINE
-          }
-          bound {
-            minValue = 75
-            coverageUnits = CoverageUnit.BRANCH
-          }
+          minBound(85)
+          minBound(75, kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
         }
       }
     }

@@ -27,7 +27,7 @@
 ## Dokka
 
 - Purpose: API reference generation from KDoc
-- Usage in this repository: `./gradlew dokkaHtml`
+- Usage in this repository: `./gradlew :app:dokkaGeneratePublicationHtml`
 - Documentation: [Dokka introduction](https://kotlinlang.org/docs/dokka-introduction.html)
 
 ## MkDocs Material

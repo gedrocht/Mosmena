@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.gedrocht.mosmena.R
 import com.gedrocht.mosmena.databinding.ItemApplicationLogMessageBinding
 import com.gedrocht.mosmena.logging.ApplicationLogMessage
 
@@ -45,10 +46,17 @@ class ApplicationLogRecyclerViewAdapter :
     private val itemApplicationLogMessageBinding: ItemApplicationLogMessageBinding
   ) : RecyclerView.ViewHolder(itemApplicationLogMessageBinding.root) {
 
+    /**
+     * Copies one log message into the visible text views for this row.
+     */
     fun bind(applicationLogMessage: ApplicationLogMessage) {
       itemApplicationLogMessageBinding.logTimestampTextView.text = applicationLogMessage.timestampText
       itemApplicationLogMessageBinding.logSeverityAndTagTextView.text =
-        "${applicationLogMessage.severity.name} | ${applicationLogMessage.tag}"
+        itemApplicationLogMessageBinding.root.context.getString(
+          R.string.application_log_severity_and_tag_label,
+          applicationLogMessage.severity.name,
+          applicationLogMessage.tag
+        )
       itemApplicationLogMessageBinding.logMessageTextView.text = applicationLogMessage.message
     }
   }

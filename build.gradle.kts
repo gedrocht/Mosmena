@@ -1,6 +1,6 @@
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.dokka.gradle.DokkaTask
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
-import io.gitlab.arturbosch.detekt.Detekt
 
 plugins {
   alias(libs.plugins.jetbrains.dokka)
@@ -47,8 +47,8 @@ subprojects {
       documentedVisibilities.set(
         setOf(
           org.jetbrains.dokka.DokkaConfiguration.Visibility.PUBLIC,
-          org.jetbrains.dokka.DokkaConfiguration.Visibility.PROTECTED
-        )
+          org.jetbrains.dokka.DokkaConfiguration.Visibility.PROTECTED,
+        ),
       )
       reportUndocumented.set(true)
       skipEmptyPackages.set(true)

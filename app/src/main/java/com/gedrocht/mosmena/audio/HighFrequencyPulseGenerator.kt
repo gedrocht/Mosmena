@@ -27,7 +27,7 @@ class HighFrequencyPulseGenerator {
   fun generatePulseSignal(acousticPulseConfiguration: AcousticPulseConfiguration): GeneratedPulseSignal {
     val pulseSampleCount = (
       acousticPulseConfiguration.sampleRateInHertz *
-        acousticPulseConfiguration.pulseDurationInMilliseconds / 1_000.0
+        acousticPulseConfiguration.pulseDurationInMilliseconds / MILLISECONDS_PER_SECOND
       ).roundToInt()
 
     val floatingPointSamples = FloatArray(pulseSampleCount)
@@ -35,7 +35,10 @@ class HighFrequencyPulseGenerator {
     var accumulatedPhaseInRadians = 0.0
 
     for (sampleIndex in 0 until pulseSampleCount) {
-      val normalizedProgress = sampleIndex.toDouble() / (pulseSampleCount - 1).coerceAtLeast(1)
+      val normalizedProgress =
+        sampleIndex.toDouble() / (pulseSampleCount - FINAL_SAMPLE_INDEX_OFFSET).coerceAtLeast(
+          MINIMUM_PROGRESS_DENOMINATOR
+        )
 
       // The chirp gradually changes frequency over time.
       val instantaneousFrequencyInHertz =
@@ -46,11 +49,13 @@ class HighFrequencyPulseGenerator {
             ) * normalizedProgress
 
       // This window smoothly fades in and fades out the pulse.
-      val hannWindowAmplitude = 0.5 - 0.5 * cos(2.0 * PI * normalizedProgress)
+      val hannWindowAmplitude =
+        HALF_AMPLITUDE - HALF_AMPLITUDE * cos(FULL_CIRCLE_IN_RADIANS * normalizedProgress)
 
       // Phase controls the current position on the sine wave.
       accumulatedPhaseInRadians +=
-        2.0 * PI * instantaneousFrequencyInHertz / acousticPulseConfiguration.sampleRateInHertz
+        FULL_CIRCLE_IN_RADIANS * instantaneousFrequencyInHertz /
+          acousticPulseConfiguration.sampleRateInHertz
 
       val floatingPointSample =
         (
@@ -68,5 +73,13 @@ class HighFrequencyPulseGenerator {
       floatingPointSamples = floatingPointSamples,
       sixteenBitPulseCodeModulationSamples = pulseCodeModulationSamples
     )
+  }
+
+  private companion object {
+    private const val FINAL_SAMPLE_INDEX_OFFSET = 1
+    private const val FULL_CIRCLE_IN_RADIANS = 2.0 * PI
+    private const val HALF_AMPLITUDE = 0.5
+    private const val MILLISECONDS_PER_SECOND = 1_000.0
+    private const val MINIMUM_PROGRESS_DENOMINATOR = 1
   }
 }

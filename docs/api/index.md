@@ -9,5 +9,5 @@ When GitHub Pages is built, the generated API HTML is copied into:
 If you are reading the repository locally, generate the reference with:
 
 ```bash
-./gradlew dokkaHtml
+./gradlew :app:dokkaGeneratePublicationHtml
 ```
