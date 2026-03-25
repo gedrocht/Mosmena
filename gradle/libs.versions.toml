@@ -2,7 +2,7 @@
 android-gradle-plugin = "9.1.0"
 androidx-activity = "1.9.3"
 androidx-appcompat = "1.7.0"
-androidx-constraintlayout = "2.2.0"
+androidx-constraintlayout = "2.2.1"
 androidx-core-ktx = "1.13.1"
 androidx-espresso = "3.6.1"
 androidx-junit = "1.2.1"
